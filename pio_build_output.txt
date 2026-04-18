@@ -1,0 +1,231 @@
+﻿C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClient.h:143:23: error: 'virtual const char* 
+WiFiClient::peekBuffer()' marked 'override', but does not override
+  143 |   virtual const char* peekBuffer () override;
+      |                       ^~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClient.h:146:16: error: 'virtual void 
+WiFiClient::peekConsume(size_t)' marked 'override', but does not override
+  146 |   virtual void peekConsume (size_t consume) override;
+      |                ^~~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClient.h:148:16: error: 'virtual bool 
+WiFiClient::outputCanTimeout()' marked 'override', but does not override
+  148 |   virtual bool outputCanTimeout () override { return connected(); }
+      |                ^~~~~~~~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClient.h:149:16: error: 'virtual bool 
+WiFiClient::inputCanTimeout()' marked 'override', but does not override
+  149 |   virtual bool inputCanTimeout () override { return connected(); }
+      |                ^~~~~~~~~~~~~~~
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\portal.h:3,
+                 from src\portal.cpp:1:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClientSecureBearSSL.h:68:9: error: 'int 
+BearSSL::WiFiClientSecureCtx::availableForWrite()' marked 'override', but does 
+not override
+   68 |     int availableForWrite() override;
+      |         ^~~~~~~~~~~~~~~~~
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\client.cpp:1:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClientSecureBearSSL.h:68:9: error: 'int 
+BearSSL::WiFiClientSecureCtx::availableForWrite()' marked 'override', but does 
+not override
+   68 |     int availableForWrite() override;
+      |         ^~~~~~~~~~~~~~~~~
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\portal.h:3,
+                 from src\portal.cpp:1:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClientSecureBearSSL.h:278:9: error: 'int 
+BearSSL::WiFiClientSecure::availableForWrite()' marked 'override', but does 
+not override
+  278 |     int availableForWrite() override { return 
+_ctx->availableForWrite(); }
+      |         ^~~~~~~~~~~~~~~~~
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiClientSecure.h:23,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiServerSecure.h:20,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:41,
+                 from src\client.cpp:1:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WiFi\src/WiFiClientSecureBearSSL.h:278:9: error: 'int 
+BearSSL::WiFiClientSecure::availableForWrite()' marked 'override', but does 
+not override
+  278 |     int availableForWrite() override { return 
+_ctx->availableForWrite(); }
+      |         ^~~~~~~~~~~~~~~~~
+src\portal.cpp: In function 'void salvarNomeEEPROM(String)':
+src\portal.cpp:70:23: warning: comparison of integer expressions of different 
+signedness: 'int' and 'unsigned int' [-Wsign-compare]
+   70 |     for (int i = 0; i < nome.length(); i++)
+      |                     ~~^~~~~~~~~~~~~~~
+src\portal.cpp: In function 'void iniciarPortalConfiguracao()':
+src\portal.cpp:217:27: warning: comparison of integer expressions of different 
+signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  217 |         for (int i = 0; i < novo_nome.length(); i++)
+      |                         ~~^~~~~~~~~~~~~~~~~~~~
+In file included from src\client.cpp:5:
+.pio\libdeps\esp12e\Espalexa\src/Espalexa.h:52:18: note: '#pragma message: 
+Espalexa 2.7.0 debug mode'
+   52 |  #pragma message "Espalexa 2.7.0 debug mode"
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+src\client.cpp: In function 'String gerarNomeMDNS(String)':
+src\client.cpp:56:21: warning: comparison of integer expressions of different 
+signedness: 'int' and 'unsigned int' [-Wsign-compare]
+   56 |   for (int i = 0; i < nome_mdns.length(); i++)
+      |                   ~~^~~~~~~~~~~~~~~~~~~~
+*** [.pio\build\esp12e\src\portal.cpp.o] Error 1
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WebServer\src/ESP8266WebServer.h:349,
+                 from .pio\libdeps\esp12e\WiFiManager/WiFiManager.h:74,
+                 from src\client.cpp:2:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/ESP8266WebServer-impl.h: In instantiation of 'void 
+esp8266webserver::ESP8266WebServerTemplate<ServerType>::handleClient() [with 
+ServerType = WiFiServer]':
+.pio\libdeps\esp12e\Espalexa\src/Espalexa.h:360:26:   required from here
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/ESP8266WebServer-impl.h:344:26: error: 'using ClientType = 
+using ClientType = class WiFiClient' {aka 'class WiFiClient'} has no member 
+named 'setTimeout'
+  344 |           _currentClient.setTimeout(HTTP_MAX_SEND_WAIT);
+      |           ~~~~~~~~~~~~~~~^~~~~~~~~~
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WebServer\src/ESP8266WebServer.h:350,
+                 from .pio\libdeps\esp12e\WiFiManager/WiFiManager.h:74,
+                 from src\client.cpp:2:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/Parsing-impl.h: In instantiation of 
+'esp8266webserver::ESP8266WebServerTemplate<ServerType>::ClientFuture esp8266we
+bserver::ESP8266WebServerTemplate<ServerType>::_parseRequest(esp8266webserver::
+ESP8266WebServerTemplate<ServerType>::ClientType&) [with ServerType = 
+WiFiServer; esp8266webserver::ESP8266WebServerTemplate<ServerType>::ClientType 
+= WiFiClient]':
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/ESP8266WebServer-impl.h:341:17:   required from 'void 
+esp8266webserver::ESP8266WebServerTemplate<ServerType>::handleClient() [with 
+ServerType = WiFiServer]'
+.pio\libdeps\esp12e\Espalexa\src/Espalexa.h:360:26:   required from here
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/Parsing-impl.h:47:23: error: 'using ClientType = using 
+ClientType = class WiFiClient' {aka 'class WiFiClient'} has no member named 
+'readStringUntil'
+   47 |   String req = client.readStringUntil('\r');
+      |                ~~~~~~~^~~~~~~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/Parsing-impl.h:49:10: error: 'using ClientType = using 
+ClientType = class WiFiClient' {aka 'class WiFiClient'} has no member named 
+'readStringUntil'
+   49 |   client.readStringUntil('\n');
+      |   ~~~~~~~^~~~~~~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/Parsing-impl.h:125:20: error: 'using ClientType = using 
+ClientType = class WiFiClient' {aka 'class WiFiClient'} has no member named 
+'readStringUntil'
+  125 |       req = client.readStringUntil('\r');
+      |             ~~~~~~~^~~~~~~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/Parsing-impl.h:126:14: error: 'using ClientType = using 
+ClientType = class WiFiClient' {aka 'class WiFiClient'} has no member named 
+'readStringUntil'
+  126 |       client.readStringUntil('\n');
+      |       ~~~~~~~^~~~~~~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/Parsing-impl.h:201:20: error: 'using ClientType = using 
+ClientType = class WiFiClient' {aka 'class WiFiClient'} has no member named 
+'readStringUntil'
+  201 |       req = client.readStringUntil('\r');
+      |             ~~~~~~~^~~~~~~~~~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/Parsing-impl.h:202:14: error: 'using ClientType = using 
+ClientType = class WiFiClient' {aka 'class WiFiClient'} has no member named 
+'readStringUntil'
+  202 |       client.readStringUntil('\n');
+      |       ~~~~~~~^~~~~~~~~~~~~~~
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WebServer\src/ESP8266WebServer.h:349,
+                 from .pio\libdeps\esp12e\WiFiManager/WiFiManager.h:74,
+                 from src\client.cpp:2:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/ESP8266WebServer-impl.h: In instantiation of 'void 
+esp8266webserver::ESP8266WebServerTemplate<ServerType>::send(int, const char*, 
+Stream*, size_t) [with ServerType = WiFiServer; size_t = unsigned int]':
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/ESP8266WebServer-impl.h:520:14:   required from 'void 
+esp8266webserver::ESP8266WebServerTemplate<ServerType>::send_P(int, const 
+char*, const char*) [with ServerType = WiFiServer]'
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/ESP8266WebServer.h:162:11:   required from 'void 
+esp8266webserver::ESP8266WebServerTemplate<ServerType>::send(int, const char*, 
+const char*) [with ServerType = WiFiServer]'
+.pio\libdeps\esp12e\Espalexa\src/Espalexa.h:207:61:   required from here
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\libraries\ES
+P8266WebServer\src/ESP8266WebServer-impl.h:510:47: error: no matching function 
+for call to 'StreamConstPtr::sendAll(esp8266webserver::ESP8266WebServerTemplate
+<WiFiServer>::ClientType*)'
+  510 |   size_t sent = StreamConstPtr(header).sendAll(&_currentClient);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+In file included from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\cores\esp8266/HardwareSerial.h:32,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\cores\esp8266/Arduino.h:303,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/WiFiClient.h:25,
+                 from C:\Users\amari\.platformio\packages\framework-arduinoespr
+essif8266\libraries\ESP8266WiFi\src/ESP8266WiFi.h:39,
+                 from src\client.cpp:1:
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\cores\esp826
+6/Stream.h:177:16: note: candidate: 'size_t Stream::sendAll(Print*, 
+esp8266::polledTimeout::timeoutTemplate<false, 
+esp8266::polledTimeout::YieldPolicy::DoNothing, esp8266::polledTimeout::TimePol
+icy::TimeUnit<esp8266::polledTimeout::TimePolicy::TimeSourceCycles, 1000> 
+>::timeType)'
+  177 |         size_t sendAll (Print* to, const oneShotMs::timeType timeoutMs 
+= oneShotMs::neverExpires) { return sendGeneric(to, -1, -1, timeoutMs); }
+      |                ^~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\cores\esp826
+6/Stream.h:177:32: note:   no known conversion for argument 1 from 
+'esp8266webserver::ESP8266WebServerTemplate<WiFiServer>::ClientType*' {aka 
+'WiFiClient*'} to 'Print*'
+  177 |         size_t sendAll (Print* to, const oneShotMs::timeType timeoutMs 
+= oneShotMs::neverExpires) { return sendGeneric(to, -1, -1, timeoutMs); }
+      |                         ~~~~~~~^~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\cores\esp826
+6/Stream.h:178:16: note: candidate: 'size_t Stream::sendAll(Print&, 
+esp8266::polledTimeout::timeoutTemplate<false, 
+esp8266::polledTimeout::YieldPolicy::DoNothing, esp8266::polledTimeout::TimePol
+icy::TimeUnit<esp8266::polledTimeout::TimePolicy::TimeSourceCycles, 1000> 
+>::timeType)'
+  178 |         size_t sendAll (Print& to, const oneShotMs::timeType timeoutMs 
+= oneShotMs::neverExpires) { return sendAll(&to, timeoutMs); }
+      |                ^~~~~~~
+C:\Users\amari\.platformio\packages\framework-arduinoespressif8266\cores\esp826
+6/Stream.h:178:32: note:   no known conversion for argument 1 from 
+'esp8266webserver::ESP8266WebServerTemplate<WiFiServer>::ClientType*' {aka 
+'WiFiClient*'} to 'Print&'
+  178 |         size_t sendAll (Print& to, const oneShotMs::timeType timeoutMs 
+= oneShotMs::neverExpires) { return sendAll(&to, timeoutMs); }
+      |                         ~~~~~~~^~
+*** [.pio\build\esp12e\src\client.cpp.o] Error 1
+========================== [FAILED] Took 7.07 seconds 
+==========================
