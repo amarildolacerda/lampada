@@ -20,6 +20,7 @@ ESP8266WebServer *server = nullptr;       // Ponteiro para o servidor web
 bool lampadaLigada = false;
 int rele_pin = DEFAULT_RELE_PIN;
 int button_pin = DEFAULT_BUTTON_PIN;
+int timeout_minutes = MAX_TIMED_ON_MINUTES;
 String nome_alexa = NOME_ID;
 unsigned long lastSerialActivity = 0;
 unsigned long lastBlink = 0;
@@ -31,6 +32,10 @@ bool portalAtivo = false;
 // Variável para controle de timeout do Wi-Fi
 unsigned long wifiDisconnectedStartTime = 0;
 bool wasWiFiConnected = false;
+
+#if !defined(DEFAULT_BUTTON_PIN)
+#undef ENBALED_BUTTON_PIN
+#endif
 
 WebSocketsServer webSocket(81); // Porta 81 para WebSocket
 
@@ -263,7 +268,7 @@ void configurarServidorWeb()
              {
     String html = "<!DOCTYPE html><html>";
     html += "<head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'>";
-    html += "<title>ESP Alexa Lampada</title>";
+    html += "<title>ESP Alexa</title>";
     html += "<style>";
     html += "body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }";
     html += ".container { background: white; border-radius: 10px; padding: 20px; max-width: 500px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }";
@@ -283,19 +288,21 @@ void configurarServidorWeb()
     html += "</script>";
     html += "</head><body>";
     html += "<div class='container'>";
-    html += "<h1>💡 ESP Alexa Lampada</h1>";
+    html += "<h1>💡 ESP Alexa</h1>";
     html += "<div class='info'>";
     html += "<p><strong>Dispositivo:</strong> " + nome_alexa + "</p>";
     html += "<p><strong>Estado:</strong> <span id='status' class='" + String(lampadaLigada ? "on" : "off") + "'>" + String(lampadaLigada ? "LIGADA" : "DESLIGADA") + "</span></p>";
     html += "<p><strong>Pino do Relé:</strong> GPIO" + String(rele_pin) + "</p>";
+    html += "<p><strong>Timeout Auto:</strong> " + String(timeout_minutes) + " min</p>";
     html += "<p><strong>IP:</strong> " + WiFi.localIP().toString() + "</p>";
     html += "<p><strong>MAC:</strong> " + WiFi.macAddress() + "</p>";
     html += "</div>";
     html += "<button onclick='toggle()'>🔄 Alternar Lampada</button><br>";
     html += "<button onclick=\"window.location.href='/info'\">ℹ️ Informacoes</button>";
-    html += "<button onclick=\"window.location.href='/websocket'\">🌐 WebSocket Test</button><br>";
+    html += "<button onclick=\"window.location.href='/ws'\">🌐 WebSocket Test</button><br>";
     html += "<button onclick=\"window.location.href='/reset'\">⚠️ Reset Configuracoes</button>";
     html += "<button onclick=\"window.location.href='/config'\">⚙️ Configurar Pino</button>";
+    html += "<button onclick=\"window.location.href='/timeout'\">⏰ Configurar Timeout</button>";
     html += "</div>";
     html += "</body></html>";
     server->send(200, "text/html", html); });
@@ -303,20 +310,26 @@ void configurarServidorWeb()
   // Rota para alternar lampada via API
   server->on("/toggle", []()
              {
-    lampadaLigada = !lampadaLigada;
-    digitalWrite(rele_pin, lampadaLigada ? HIGH : LOW);
-    server->send(200, "text/plain", lampadaLigada ? "ON" : "OFF");
-    Serial.print("Web: Lampada ");
-    Serial.println(lampadaLigada ? "LIGADA" : "DESLIGADA"); });
+               lampadaLigada = !lampadaLigada;
+               digitalWrite(rele_pin, lampadaLigada ? HIGH : LOW);
+               server->send(200, "text/plain", lampadaLigada ? "ON" : "OFF");
+               Serial.print("Web: Lampada ");
+               Serial.print(lampadaLigada ? "LIGADA" : "DESLIGADA");
+               Serial.print(" em: ");
+               Serial.println(rele_pin); });
 
   // Rota para informações detalhadas
   server->on("/info", []()
              {
     String json = "{";
-    json += "\"device\":\"ESP Alexa Lampada\",";
+    json += "\"device\":\"ESP Alexa\",";
     json += "\"version\":\"3.4\",";
     json += "\"nome_alexa\":\"" + nome_alexa + "\",";
     json += "\"pino_rele\":" + String(rele_pin) + ",";
+    json += "\"timeout_minutos\":" + String(timeout_minutes) + ",";
+#ifdef ENBALED_BUTTON_PIN
+    json += "\"pino_botao\":" + String(button_pin) + ",";
+#endif
     json += "\"estado\":" + String(lampadaLigada ? "true" : "false") + ",";
     json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
     json += "\"mac\":\"" + WiFi.macAddress() + "\",";
@@ -364,7 +377,7 @@ void configurarServidorWeb()
     server->send(200, "text/plain", status); });
 
   // Rota para teste WebSocket
-  server->on("/websocket", []()
+  server->on("/ws", []()
              {
     String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'>";
     html += "<title>WebSocket Test - ESP8266</title>";
@@ -501,6 +514,40 @@ void configurarServidorWeb()
       server->send(200, "text/html", html);
     } });
 
+  // Rota para configurar timeout
+  server->on("/timeout", []()
+             {
+    if (server->method() == HTTP_POST)
+    {
+      String novo_timeout_str = server->arg("timeout");
+      int novo_timeout = novo_timeout_str.toInt();
+
+      if (novo_timeout > 0 && novo_timeout <= 1440) // Max 24 horas
+      {
+        timeout_minutes = novo_timeout;
+        salvarTimeoutEEPROM(timeout_minutes);
+        server->send(200, "text/html", "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Timeout Atualizado</title><meta http-equiv='refresh' content='3;url=/'></head><body><h1>✅ Timeout atualizado!</h1><p>Redirecionando em 3 segundos...</p></body></html>");
+        delay(100);
+      }
+      else
+      {
+        server->send(200, "text/html", "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Erro</title></head><body><h1>❌ Erro: Timeout inválido (1-1440 minutos)</h1><a href='/timeout'>Voltar</a></body></html>");
+      }
+    }
+    else
+    {
+      String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Configurar Timeout</title>";
+      html += "<style>body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }";
+      html += ".container { background: white; border-radius: 10px; padding: 20px; max-width: 400px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }";
+      html += "h1 { color: #667eea; } input { padding: 8px; font-size: 16px; width: 100px; } button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 5px; color: white; padding: 10px 20px; cursor: pointer; font-size: 16px; margin: 10px; }</style></head><body>";
+      html += "<div class='container'><h1>⏰ Configurar Timeout Automático</h1>";
+      html += "<p>Defina o tempo em minutos para a lâmpada se desligar automaticamente.</p>";
+      html += "<form method='POST'><label>Timeout (minutos): <input type='number' name='timeout' min='1' max='1440' value='" + String(timeout_minutes) + "'></label><br><br><input type='submit' value='💾 Salvar'></form>";
+      html += "<p><small>Valor atual: " + String(timeout_minutes) + " minutos</small></p>";
+      html += "<br><a href='/'><button type='button'>🏠 Voltar</button></a></div></body></html>";
+      server->send(200, "text/html", html);
+    } });
+
   // Tratamento para rotas não encontradas - DELEGA PARA ESPALEXA
   server->onNotFound([]()
                      {
@@ -521,7 +568,7 @@ void configurarServidorWeb()
 
   server->begin();
   Serial.println("✅ Servidor web iniciado na porta 80");
-  Serial.println("   Rotas disponiveis: /, /toggle, /info, /status, /reset");
+  Serial.println("   Rotas disponiveis: /, /toggle, /info, /status, /reset, /config, /timeout");
   Serial.println("   Rotas Espalexa: /espalexa, /api/...");
 }
 
@@ -554,17 +601,59 @@ int carregarPinoEEPROM()
   return DEFAULT_RELE_PIN;
 }
 
+// =============================================
+//  FUNCAO PARA CARREGAR TIMEOUT DA EEPROM
+// =============================================
+int carregarTimeoutEEPROM()
+{
+  EEPROM.begin(EEPROM_SIZE);
+  int magic = EEPROM.read(MAGIC_NUMBER_ADDR);
+
+  if (magic != MAGIC_NUMBER)
+  {
+    EEPROM.end();
+    Serial.println("Nenhuma configuracao valida, usando padrao timeout");
+    return MAX_TIMED_ON_MINUTES;
+  }
+
+  int timeout = EEPROM.read(TIMEOUT_CONFIG_ADDR);
+  EEPROM.end();
+
+  if (timeout > 0 && timeout <= 1440) // Max 24 horas
+  {
+    Serial.print("Timeout carregado da EEPROM: ");
+    Serial.print(timeout);
+    Serial.println(" minutos");
+    return timeout;
+  }
+
+  Serial.println("Timeout configurado invalido, usando padrao");
+  return MAX_TIMED_ON_MINUTES;
+}
+
+int releon_timeour = 0;
+
 bool acionarRele(bool ligar)
 {
   digitalWrite(rele_pin, ligar ? HIGH : LOW);
   lampadaLigada = digitalRead(rele_pin) == HIGH;
-
+  if (lampadaLigada)
+  {
+    releon_timeour = millis() + timeout_minutes * 60000; // Desliga automaticamente após timeout configurado
+  }
+  else
+  {
+    releon_timeour = 0; // Desativa timeout
+  }
   // Sincronizar estado com Espalexa (para Alexa saber do botão)
   if (lampada_device != nullptr)
   {
     lampada_device->setValue(lampadaLigada ? 255 : 0);
     Serial.print("[Botao] Lampada ");
     Serial.print(lampadaLigada ? "LIGADA" : "DESLIGADA");
+    Serial.print(" em: ");
+    Serial.println(rele_pin);
+
     Serial.println(" - Estado sincronizado com Espalexa");
   }
 
@@ -660,6 +749,9 @@ void processarComandosSerial()
       Serial.println(nome_alexa);
       Serial.print("🔌 Pino Rele: GPIO");
       Serial.println(rele_pin);
+      Serial.print("⏰ Timeout Auto: ");
+      Serial.print(timeout_minutes);
+      Serial.println(" minutos");
       Serial.print("💡 Estado: ");
       Serial.println(lampadaLigada ? "LIGADA" : "DESLIGADA");
       Serial.print("🌍 mDNS: ");
@@ -843,7 +935,9 @@ void setup_client()
   digitalWrite(LED_BUILTIN, HIGH);
 
   rele_pin = carregarPinoEEPROM();
-  nome_alexa = carregarNomeEEPROM();
+  if (nome_alexa.length() == 0)
+    nome_alexa = carregarNomeEEPROM();
+  timeout_minutes = carregarTimeoutEEPROM();
 
   if (rele_pin == 0)
   {
@@ -857,6 +951,8 @@ void setup_client()
   pinMode(button_pin, INPUT_PULLDOWN_16);
 
   String ap_nome = gerarAPName();
+  if (nome_alexa.length() > 0)
+    ap_nome = "ESP-" + nome_alexa;
 
   WiFiManager wifiManager;
   wifiManager.setConnectTimeout(10);
@@ -911,7 +1007,7 @@ void setup_client()
   Serial.print("🌐 Acesso Web: http://");
   Serial.print(gerarNomeMDNS(nome_alexa));
   Serial.println(".local");
-  Serial.println("   Rotas: /, /toggle, /info, /status, /espalexa");
+  Serial.println("   Rotas: /, /toggle, /info, /status, /reset, /config, /timeout, /espalexa");
 #ifdef ENABLED_SERIAL
   Serial.println("\n💡 Comandos Serial: HELP para lista");
   Serial.println();
@@ -933,6 +1029,7 @@ bool buttonWasPressed = false;
 // =============================================
 void verificarButton()
 {
+
 #ifdef ENBALED_BUTTON_PIN
   // Assumindo botão com pull-up: LOW quando pressionado, HIGH quando solto
   bool isPressed = (digitalRead(button_pin) == HIGH);
@@ -1017,6 +1114,9 @@ void verificarButton()
     }
   }
 #endif
+
+  if (lampadaLigada && releon_timeour > 0 && millis() > releon_timeour)
+    acionarRele(LOW);
 }
 // =============================================
 //  LOOP CLIENT

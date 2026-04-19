@@ -82,6 +82,21 @@ void salvarNomeEEPROM(String nome)
 }
 
 // =============================================
+//  FUNCAO PARA SALVAR TIMEOUT NA EEPROM
+// =============================================
+void salvarTimeoutEEPROM(int timeout)
+{
+    EEPROM.begin(EEPROM_SIZE);
+    EEPROM.write(TIMEOUT_CONFIG_ADDR, timeout);
+    EEPROM.write(MAGIC_NUMBER_ADDR, MAGIC_NUMBER);
+    EEPROM.commit();
+    EEPROM.end();
+    Serial.print("Timeout ");
+    Serial.print(timeout);
+    Serial.println(" minutos salvo na EEPROM");
+}
+
+// =============================================
 //  CALLBACKS DO WIFIMANAGER
 // =============================================
 
