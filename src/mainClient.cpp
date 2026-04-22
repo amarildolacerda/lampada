@@ -54,7 +54,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
     IPAddress ip = webSocket.remoteIP(num);
     Serial.printf("[WebSocket] Cliente %u conectado de %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
     // Send initial status
-    String status = "{\"status\":\"connected\",\"device\":\"" + nome_alexa + "\"}";
+    // adicionar gpio e nome do dispositivo
+    String status = "{\"status\":\"connected\",\"device\":\"" + nome_alexa + "\",\"gpio\":" + String(rele_pin) + "}";
+    // String status = "{\"status\":\"connected\",\"device\":\"" + nome_alexa + ",\"}";
     webSocket.sendTXT(num, status);
     // Enviar informações completas
     enviarInformacoesDispositivo(num);
@@ -510,40 +512,6 @@ void configurarServidorWeb()
         html += ">GPIO" + String(p) + "</option>";
       }
       html += "</select></label><br><br><input type='submit' value='💾 Salvar'></form>";
-      html += "<br><a href='/'><button type='button'>🏠 Voltar</button></a></div></body></html>";
-      server->send(200, "text/html", html);
-    } });
-
-  // Rota para configurar timeout
-  server->on("/timeout", []()
-             {
-    if (server->method() == HTTP_POST)
-    {
-      String novo_timeout_str = server->arg("timeout");
-      int novo_timeout = novo_timeout_str.toInt();
-
-      if (novo_timeout > 0 && novo_timeout <= 1440) // Max 24 horas
-      {
-        timeout_minutes = novo_timeout;
-        salvarTimeoutEEPROM(timeout_minutes);
-        server->send(200, "text/html", "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Timeout Atualizado</title><meta http-equiv='refresh' content='3;url=/'></head><body><h1>✅ Timeout atualizado!</h1><p>Redirecionando em 3 segundos...</p></body></html>");
-        delay(100);
-      }
-      else
-      {
-        server->send(200, "text/html", "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Erro</title></head><body><h1>❌ Erro: Timeout inválido (1-1440 minutos)</h1><a href='/timeout'>Voltar</a></body></html>");
-      }
-    }
-    else
-    {
-      String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>Configurar Timeout</title>";
-      html += "<style>body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }";
-      html += ".container { background: white; border-radius: 10px; padding: 20px; max-width: 400px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }";
-      html += "h1 { color: #667eea; } input { padding: 8px; font-size: 16px; width: 100px; } button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 5px; color: white; padding: 10px 20px; cursor: pointer; font-size: 16px; margin: 10px; }</style></head><body>";
-      html += "<div class='container'><h1>⏰ Configurar Timeout Automático</h1>";
-      html += "<p>Defina o tempo em minutos para a lâmpada se desligar automaticamente.</p>";
-      html += "<form method='POST'><label>Timeout (minutos): <input type='number' name='timeout' min='1' max='1440' value='" + String(timeout_minutes) + "'></label><br><br><input type='submit' value='💾 Salvar'></form>";
-      html += "<p><small>Valor atual: " + String(timeout_minutes) + " minutos</small></p>";
       html += "<br><a href='/'><button type='button'>🏠 Voltar</button></a></div></body></html>";
       server->send(200, "text/html", html);
     } });
