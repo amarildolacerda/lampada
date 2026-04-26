@@ -9,7 +9,7 @@
 #include "portal.h"
 #include "client.h"
 
-#ifdef MQTT_CLIENT
+#ifdef LAMPADA_APP
 
 // =============================================
 //  VARIAVEIS GLOBAIS

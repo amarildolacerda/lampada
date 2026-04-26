@@ -1,25 +1,31 @@
 ﻿#include <Arduino.h>
 
-#ifdef MQTT_SERVER
-#include "mainServer.h"
-#else
-#include "mainClient.h"
+#ifdef LAMPADA_APP
+#include "lampada/lampada_app.h"
+#endif
+
+#ifdef NIVEL_AGUA_APP
+#include "nivel_agua/nivel_agua_app.h"
 #endif
 
 void setup()
 {
-#ifdef MQTT_SERVER
-  setup_server();
-#else
+#ifdef LAMPADA_APP
   setup_client();
+#endif
+
+#ifdef NIVEL_AGUA_APP
+  setup_nivel_agua();
 #endif
 }
 
 void loop()
 {
-#ifdef MQTT_SERVER
-  loop_server();
-#else
+#ifdef LAMPADA_APP
   loop_client();
+#endif
+
+#ifdef NIVEL_AGUA_APP
+  loop_nivel_agua();
 #endif
 }
