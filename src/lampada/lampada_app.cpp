@@ -1,8 +1,8 @@
 ﻿#include <ESP8266WiFi.h>
 #include <WiFiManager.h> // by tzapu
 #include <ESP8266WebServer.h>
-#define ESPALEXA_DEBUG // Ativa debug do Espalexa
-#include <Espalexa.h>  // by Aircoookie
+// #define ESPALEXA_DEBUG // Ativa debug do Espalexa
+#include <Espalexa.h> // by Aircoookie
 #include <EEPROM.h>
 #include <ESP8266mDNS.h> // Para mDNS (acesso via .local)
 #include <WebSocketsServer.h>
