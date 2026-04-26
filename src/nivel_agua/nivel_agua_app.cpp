@@ -113,25 +113,30 @@ void setup_nivel_agua()
 // =============================================
 //  LOOP PRINCIPAL
 // =============================================
+unsigned long intervalo = LOOP_INTERVALO; // 5 minutos em ms
+unsigned long ultimoTempo = 0;
 void loop_nivel_agua()
 {
-    // Atualizar leitura do sensor
-    sensor_nivel->atualizar();
-
-    // Processar mudanças de nível
-    if (sensor_nivel->houveMudanca())
+    if (millis() - ultimoTempo >= intervalo)
     {
-        Serial.printf("[Mudança] Nível alterado: %s -> %s\n",
-                      sensor_nivel->getNivelAnteriorString().c_str(),
-                      sensor_nivel->getNivelString().c_str());
+        ultimoTempo = millis();
+        // Atualizar leitura do sensor
+        sensor_nivel->atualizar();
 
-        tempo_ultima_mudanca = millis();
-        processarNivelAgua();
+        // Processar mudanças de nível
+        if (sensor_nivel->houveMudanca())
+        {
+            Serial.printf("[Mudança] Nível alterado: %s -> %s\n",
+                          sensor_nivel->getNivelAnteriorString().c_str(),
+                          sensor_nivel->getNivelString().c_str());
+
+            tempo_ultima_mudanca = millis();
+            processarNivelAgua();
+        }
+
+        // Enviar status periodicamente
+        enviarStatusNivel();
     }
-
-    // Enviar status periodicamente
-    enviarStatusNivel();
-
     // Pequeno delay para evitar consumo excessivo de CPU
     delay(50);
 }
