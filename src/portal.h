@@ -15,8 +15,7 @@
 // #define DEFAULT_RELE_PIN D8 - movido para platformio.ini
 // #define DEFAULT_BUTTON_PIN D2
 #define AP_NAME "ESP-Store"
-#define BUTTON_HOLD_TIME_MS 5000     // Tempo para reset (5 segundos)
-#define WIFI_TIMEOUT_RESET_MS 120000 // 60 segundos sem Wi-Fi = reset automático
+#define BUTTON_HOLD_TIME_MS 5000 // Tempo para reset (5 segundos)
 // #define MAX_TIMED_ON_MINUTES 60      // 1 hora
 
 // Lista de pinos seguros no ESP8266

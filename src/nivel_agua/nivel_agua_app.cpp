@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#include "nivel_agua_sensor.h"
-
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h> // by tzapu
 #include <ESP8266WebServer.h>
@@ -8,10 +6,12 @@
 #include <EEPROM.h>
 #include <ESP8266mDNS.h> // Para mDNS (acesso via .local)
 #include <WebSocketsServer.h>
-#include "portal.h"
-#include "client.h"
 
 #ifdef NIVEL_AGUA_APP
+#include "nivel_agua_sensor.h"
+#include "portal.h"
+#include "client.h"
+#include "comum.h"
 
 Espalexa espalexa;
 bool mdnsIniciado = false;
@@ -19,10 +19,6 @@ String nome_alexa = NOME_ID;
 bool portalAtivo = false;
 bool shouldSaveConfig = false;
 int timeout_minutes = MAX_TIMED_ON_MINUTES;
-
-// Variável para controle de timeout do Wi-Fi
-unsigned long wifiDisconnectedStartTime = 0;
-bool wasWiFiConnected = false;
 
 // =============================================
 //  VARIÁVEIS GLOBAIS
@@ -55,106 +51,6 @@ NivelAgua nivel_anterior_armazenado = VAZIO;
 void enviarInformacoesDispositivo(uint8_t clientNum = 255);
 
 // =============================================
-//  VERIFICAR WIFI E RESET AUTOMATICO
-// =============================================
-void verificarWiFi()
-{
-    static unsigned long lastWiFiCheck = 0;
-    bool isConnected = (WiFi.status() == WL_CONNECTED);
-
-    // Detectar mudança no estado do Wi-Fi
-    if (isConnected != wasWiFiConnected)
-    {
-        if (isConnected)
-        {
-            // Wi-Fi conectou ou reconectou
-            Serial.println("[WiFi] Conectado/Reconectado!");
-            wifiDisconnectedStartTime = 0;
-        }
-        else
-        {
-            // Wi-Fi perdeu conexão
-            Serial.println("[WiFi] Desconectado! Iniciando contagem para reset...");
-            wifiDisconnectedStartTime = millis();
-        }
-        wasWiFiConnected = isConnected;
-    }
-
-    // Verificar se está desconectado por muito tempo
-    if (!isConnected && wifiDisconnectedStartTime > 0)
-    {
-        unsigned long disconnectedDuration = millis() - wifiDisconnectedStartTime;
-
-        if (disconnectedDuration >= WIFI_TIMEOUT_RESET_MS)
-        {
-            Serial.println("\n========================================");
-            Serial.print("⚠️  SEM CONEXÃO WI-FI POR ");
-            Serial.print(disconnectedDuration / 1000);
-            Serial.println(" SEGUNDOS!");
-            Serial.println("🔄 EXECUTANDO RESET AUTOMÁTICO...");
-            Serial.println("========================================\n");
-
-            // Feedback visual: pisca LED rapidamente 5 vezes antes do reset
-            for (int i = 0; i < 5; i++)
-            {
-                digitalWrite(LED_BUILTIN, LOW);
-                delay(150);
-                digitalWrite(LED_BUILTIN, HIGH);
-                delay(150);
-            }
-
-            delay(1000);
-            ESP.restart();
-        }
-        else if (disconnectedDuration >= 30000)
-        {
-            // Aviso após 30 segundos
-            if ((disconnectedDuration / 1000) % 10 == 0)
-            { // A cada 10 segundos
-                Serial.print("[WiFi] Ainda desconectado. Reset em ");
-                Serial.print((WIFI_TIMEOUT_RESET_MS - disconnectedDuration) / 1000);
-                Serial.println(" segundos...");
-            }
-
-            // Feedback visual: pisca LED em padrão de angústia (rápido)
-            if ((millis() % 500) < 250)
-            {
-                digitalWrite(LED_BUILTIN, LOW);
-            }
-            else
-            {
-                digitalWrite(LED_BUILTIN, HIGH);
-            }
-        }
-    }
-
-    // Tentar reconectar se desconectado (mas sem reset)
-    if (!isConnected && millis() - lastWiFiCheck > 30000)
-    {
-        Serial.println("[WiFi] Tentando reconectar...");
-        WiFi.reconnect();
-        lastWiFiCheck = millis();
-    }
-}
-
-// =============================================
-//  FUNCAO PARA GERAR NOME BASEADO NO MAC
-// =============================================
-String gerarNomeBaseadoNoMAC()
-{
-    uint8_t mac[6];
-    WiFi.macAddress(mac);
-
-    char nome[32];
-    snprintf(nome, sizeof(nome), "esp_%02X%02X", mac[4], mac[5]);
-
-    Serial.print("Nome gerado baseado no MAC: ");
-    Serial.println(nome);
-
-    return String(nome);
-}
-
-// =============================================
 //  FUNCAO PARA CARREGAR NOME NA EEPROM
 // =============================================
 String carregarNomeEEPROM()
@@ -180,43 +76,12 @@ String carregarNomeEEPROM()
     if (nome.length() == 0)
     {
         Serial.println("Nenhum nome encontrado na EEPROM, gerando baseado no MAC");
-        return gerarNomeBaseadoNoMAC();
+        return Comum::gerarNomeBaseadoNoMAC();
     }
 
     Serial.print("Nome carregado da EEPROM: ");
     Serial.println(nome);
     return nome;
-}
-
-// =============================================
-//  FUNCAO PARA GERAR NOME mDNS VÁLIDO
-// =============================================
-String gerarNomeMDNS(String nome)
-{
-    String nome_mdns = nome;
-
-    nome_mdns.toLowerCase();
-
-    for (int i = 0; i < nome_mdns.length(); i++)
-    {
-        char c = nome_mdns[i];
-        if (!(isalnum(c) || c == '-'))
-        {
-            nome_mdns.setCharAt(i, '_');
-        }
-    }
-
-    if (nome_mdns.length() > 0 && !isalpha(nome_mdns[0]))
-    {
-        nome_mdns = "device_" + nome_mdns;
-    }
-
-    if (nome_mdns.length() > 63)
-    {
-        nome_mdns = nome_mdns.substring(0, 63);
-    }
-
-    return nome_mdns;
 }
 
 void iniciarMDNS()
@@ -227,7 +92,7 @@ void iniciarMDNS()
         delay(100);
     }
 
-    String nome_mdns = gerarNomeMDNS(nome_alexa);
+    String nome_mdns = Comum::gerarNomeMDNS(nome_alexa);
 
     Serial.println("\n=== INICIANDO mDNS ===");
     Serial.print("Nome mDNS gerado: ");
@@ -309,7 +174,7 @@ void enviarStatusNivel()
 // =============================================
 //  CALLBACK DA ALEXA
 // =============================================
-void callbackLampada(EspalexaDevice *d)
+void callbackNivel(EspalexaDevice *d)
 {
     if (d == nullptr)
         return;
@@ -497,18 +362,23 @@ void configurarServidorWeb()
                    Serial.println(pino_sensor_inferior); });
 
     // Rota para informações detalhadas
-    server->on("/info", []()
+    server->on("/status", []()
                {
+                       sensor_nivel->atualizar();
+                       nivel_sensor_string = sensor_nivel->getNivelString();
+                       lampadaLigada = sensor_nivel->getNivel() != VAZIO;
+
+
     String json = "{";
     json += "\"device\":\"ESP Alexa\",";
     json += "\"version\":\"3.4\",";
-    json += "\"nome_alexa\":\"" + nome_alexa + "\",";
+    json += "\"name\":\"" + nome_alexa + "\",";
     json += "\"pino_vazio\":" + String(pino_sensor_inferior) + ",";
     //json += "\"timeout_minutos\":" + String(timeout_minutes) + ",";
 //#ifdef ENBALED_BUTTON_PIN
 //    json += "\"pino_botao\":" + String(button_pin) + ",";
 //#endif
-    json += "\"estado\":" + String(lampadaLigada ? "true" : "false") + ",";
+    json += "\"status\":\"" + String(lampadaLigada ? "ON" : "OFF") + "\",";
     json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
     json += "\"mac\":\"" + WiFi.macAddress() + "\",";
     json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
@@ -546,7 +416,7 @@ void configurarServidorWeb()
     } });
 
     // Rota para status simples
-    server->on("/status", []()
+    server->on("/info", []()
                {
     String status = "Dispositivo: " + nome_alexa + "\n";
     status += "Estado: " + String(lampadaLigada ? "LIGADA" : "DESLIGADA") + "\n";
@@ -790,7 +660,7 @@ void setup_nivel_agua()
     Serial.println("[Setup] Sistema pronto para operar\n");
 
     // Configurar Espalexa com o servidor existente
-    uint8 n = espalexa.addDevice(nome_alexa.c_str(), callbackLampada, EspalexaDeviceType::dimmable);
+    uint8 n = espalexa.addDevice(nome_alexa.c_str(), callbackNivel, EspalexaDeviceType::dimmable);
     alexa_device = espalexa.getDevice(n - 1);
     espalexa.setDiscoverable(true);
     espalexa.begin(server); // Passa o servidor para o Espalexa
@@ -818,7 +688,7 @@ void loop_nivel_agua()
     webSocket.loop();
 
     // processarComandosSerial();
-    verificarWiFi();
+    Comum::verificarWiFi();
     // indicarStatus();
     // verificarButton();
 
