@@ -44,7 +44,7 @@ const unsigned long INTERVALO_LOG = 1000; // 1 segundo
 // Variáveis de estado
 unsigned long tempo_ultima_mudanca = 0;
 NivelAgua nivel_anterior_armazenado = VAZIO;
-
+unsigned long deep_sleep_timeout = 0;
 // =============================================
 //  FUNÇÕES AUXILIARES
 // =============================================
@@ -178,6 +178,7 @@ void callbackNivel(EspalexaDevice *d)
 {
     if (d == nullptr)
         return;
+    deep_sleep_timeout = millis();
 
     // acionarRele(d->getValue() > 0);
     sensor_nivel->atualizar();
@@ -195,6 +196,8 @@ void callbackNivel(EspalexaDevice *d)
 // =============================================
 void enviarInformacoesDispositivo(uint8_t clientNum)
 {
+    deep_sleep_timeout = millis();
+
     String info = "{";
     info += "\"device\":\"" + nome_alexa + "\",";
     info += "\"state\":" + String(lampadaLigada ? "true" : "false") + ",";
@@ -229,6 +232,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
         break;
     case WStype_CONNECTED:
     {
+        deep_sleep_timeout = millis();
+
         IPAddress ip = webSocket.remoteIP(num);
         Serial.printf("[WebSocket] Cliente %u conectado de %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
         // Send initial status
@@ -353,6 +358,8 @@ void configurarServidorWeb()
     // Rota para alternar lampada via API
     server->on("/ler", []()
                {
+                        deep_sleep_timeout = millis();
+
                    sensor_nivel->atualizar();
                        nivel_sensor_string = sensor_nivel->getNivelString();
                    server->send(200, "text/plain", nivel_sensor_string);
@@ -364,6 +371,8 @@ void configurarServidorWeb()
     // Rota para informações detalhadas
     server->on("/status", []()
                {
+                        deep_sleep_timeout = millis();
+
                        sensor_nivel->atualizar();
                        nivel_sensor_string = sensor_nivel->getNivelString();
                        lampadaLigada = sensor_nivel->getNivel() != VAZIO;
@@ -418,6 +427,8 @@ void configurarServidorWeb()
     // Rota para status simples
     server->on("/info", []()
                {
+                        deep_sleep_timeout = millis();
+
     String status = "Dispositivo: " + nome_alexa + "\n";
     status += "Estado: " + String(lampadaLigada ? "LIGADA" : "DESLIGADA") + "\n";
     status += "IP: " + WiFi.localIP().toString() + "\n";
@@ -427,6 +438,8 @@ void configurarServidorWeb()
     // Rota para teste WebSocket
     server->on("/ws", []()
                {
+                        deep_sleep_timeout = millis();
+
     String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'>";
     html += "<title>WebSocket Test - ESP8266</title>";
     html += "<style>";
@@ -523,6 +536,7 @@ void configurarServidorWeb()
                {
     if (server->method() == HTTP_POST)
     {
+        deep_sleep_timeout = millis();
       String novo_pino_str = server->arg("pino");
       int novo_pino = novo_pino_str.toInt();
 
@@ -720,10 +734,11 @@ void loop_nivel_agua()
 
         // Pequeno delay para evitar consumo excessivo de CPU
         delay(50);
-        if (LOOP_DEEP_SLEEP > 0)
+        if (LOOP_DEEP_SLEEP > 0 && millis() - deep_sleep_timeout > 180000)
         {
+            deep_sleep_timeout = millis();
             Serial.printf("Sleeping: %d", LOOP_DEEP_SLEEP);
-            ESP.deepSleep(LOOP_DEEP_SLEEP); // 1 minuto
+            ESP.deepSleep(LOOP_DEEP_SLEEP * 1000000);
         }
     }
 
