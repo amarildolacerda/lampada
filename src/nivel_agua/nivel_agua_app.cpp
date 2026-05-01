@@ -1,3 +1,4 @@
+#ifdef NIVEL_AGUA_APP
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h> // by tzapu
@@ -7,7 +8,6 @@
 #include <ESP8266mDNS.h> // Para mDNS (acesso via .local)
 #include <WebSocketsServer.h>
 
-#ifdef NIVEL_AGUA_APP
 #include "nivel_agua_sensor.h"
 #include "portal.h"
 #include "client.h"

@@ -1,4 +1,5 @@
-﻿#include <ESP8266WiFi.h>
+﻿#ifdef LAMPADA_APP
+#include <ESP8266WiFi.h>
 #include <WiFiManager.h> // by tzapu
 #include <ESP8266WebServer.h>
 // #define ESPALEXA_DEBUG // Ativa debug do Espalexa
@@ -7,7 +8,6 @@
 #include <ESP8266mDNS.h> // Para mDNS (acesso via .local)
 #include <WebSocketsServer.h>
 
-#ifdef LAMPADA_APP
 #include "portal.h"
 #include "client.h"
 #include "comum.h"

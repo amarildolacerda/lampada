@@ -1,3 +1,4 @@
+#ifdef PORTAL
 #include "radio.h"
 
 RadioFrame::RadioFrame()
@@ -79,3 +80,4 @@ bool RadioFrame::deserialize(const uint8_t *buffer, size_t bufferSize)
     memcpy(payload, buffer + 4, length);
     return true;
 }
+#endif

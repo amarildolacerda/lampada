@@ -1,8 +1,11 @@
+
+
+#ifdef PORTAL
 #include "portal.h"
 #include <EEPROM.h>
 
 // Lista de pinos seguros no ESP8266
-const int pinos_validos[] = {2, 3, 4, 5,  12, 13, 14, 15};
+const int pinos_validos[] = {2, 3, 4, 5, 12, 13, 14, 15};
 const int num_pinos_validos = 7;
 
 // =============================================
@@ -261,3 +264,4 @@ void iniciarPortalConfiguracao()
         ESP.restart();
     }
 }
+#endif

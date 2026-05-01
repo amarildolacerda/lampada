@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef PORTAL
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
 
@@ -37,3 +38,4 @@ bool isPinoSeguro(int pino);
 void salvarPinoEEPROM(int pino);
 void salvarNomeEEPROM(String nome);
 void salvarTimeoutEEPROM(int timeout);
+#endif
